@@ -4,17 +4,19 @@ var board = [];
 function Block(x, y, clr) {
 	this.x = x;
 	this.y = y;
-	this.clr = y;
+	this.clr = clr;
 }
 
 
 function Shape(shp, clr) {
-	console.log('Shape: ' + shp.b1.y);
 	this.b1 = new Block(shp.b1.x, shp.b1.y, clr);
 	this.b2 = new Block(shp.b2.x, shp.b2.y, clr);
 	this.b3 = new Block(shp.b3.x, shp.b3.y, clr);
 	this.b4 = new Block(shp.b4.x, shp.b4.y, clr);
-	//this.colour = clr;
+	this.colour = clr;
+
+	draw = function () {
+	}
 }
 
 
@@ -32,14 +34,13 @@ var Shapes = [
 
 
 
-var newshape_interval = 5;
+var NEWSHAPE_INTERVAL = 5;
 
 var gameloop = 0;
 
-//var shapes = [shape1, shape2, shape3, shape4, shape5, shape6, shape7];
-var currentShape;
+var currentShape, nextShape;
 
-var currPos = new Block(2, 3, '#000');
+var currPos = new Block(2, 3, 0);
 
 var firstRun = 1, dropped = 0;
 
@@ -57,8 +58,7 @@ $(document).ready(function(e) {
 	debug();
 
 	gameloop = 0;
-	//currShape = shapes[shapetype];
-	
+
 	setInterval(onTimer, 500);
 });
 
@@ -86,8 +86,10 @@ function getNewShape(){
 function addShape(shp) {
 
 	for (var blk in shp) {
-		shp[blk].x += currPos.x;
-		shp[blk].y += currPos.y;
+		if (shp[blk] instanceof Block) {
+  		  shp[blk].x += currPos.x;
+		  shp[blk].y += currPos.y;
+		}
 	}
 	
 	drawShape(shp);
@@ -98,8 +100,10 @@ function addShape(shp) {
 function drawShape(shp) {
 
 	for (var blk in shp) {
-		console.log(blk + ':' + shp[blk].x + ',' + shp[blk].y);
-		board[shp[blk].x][shp[blk].y] = 1;
+		if (shp[blk] instanceof Block) {
+  		  console.log(blk + ':' + shp[blk].x + ',' + shp[blk].y);
+		  board[shp[blk].x][shp[blk].y] = shp.colour;
+		}
 	}
 }
 
@@ -108,30 +112,37 @@ function moveShape(shp, dir) {
 
 	// remove current shape from board
 	for (var blk in shp) {
-		board[shp[blk].x][shp[blk].y] = 0;
+		if (shp[blk] instanceof Block) {
+			board[shp[blk].x][shp[blk].y] = 0;
+		}
 	}
 
 	// move points of current shape
 	for (var blk in shp) {
-		if (dir == 1) shp[blk].x += 1;
+		if (shp[blk] instanceof Block) {
+			if (dir == DOWN) shp[blk].x += 1;
+			if (dir == LEFT) shp[blk].y -= 1;
+			if (dir == RIGHT) shp[blk].y += 1;
+		}
 	}
+
+	drawShape(shp);
 }
 
 
 
 function onTimer() {
 
-	if ((gameloop % newshape_interval) == 0) {
+	if ((gameloop % NEWSHAPE_INTERVAL) == 0) {
 		
 		if (firstRun || dropped) {
 			currPos.x = 2;
 			currentShape = getNewShape();
-			console.log(currentShape);
 			addShape(currentShape);
 			firstRun = 0;
 		}
 		else {
-			moveShape(currentShape, 1);
+			moveShape(currentShape, DOWN);
 			drawShape(currentShape);
 		}
 	}
@@ -147,36 +158,26 @@ function onTimer() {
 
 
 function keyPressed(key) {
+	
 	switch (key) {
-		//case 38 : rotateLeft();
+		//case 38 : moveShape(currentShape, ROTATE_LEFT);
 		//break;
 	
-		//case 38 : rotateRight();
+		//case 38 : moveShape(currentShape, ROTATE_RIGHT);
 		// break;
 
-		case 40 : dropShape();
+		case 40 : dropShape(currentShape);
 		break;
 
-		case 37 : moveLeft();
+		case 37 : moveShape(currentShape, LEFT);
 		break;
 		
-		case 39 : moveRight();
+		case 39 : moveShape(currentShape, RIGHT);
 		break;
 
-		case 32 : dropShape();
+		case 32 : dropShape(currentShape);
 		break;								
 	}
-	
-}
-
-
-function moveRight() {
-	currPos.y++;
-}
-
-
-function moveLeft() {
-	currPos.y--;
 }
 
 
@@ -220,4 +221,3 @@ function debug() {
 
 	$('#debug').append(str + '<br/>');
 }
-	
