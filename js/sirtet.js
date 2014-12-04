@@ -15,8 +15,14 @@ function Shape(shp, clr) {
 	this.b4 = new Block(shp.b4.x, shp.b4.y, clr);
 	this.colour = clr;
 
-	draw = function () {
+	draw = function (ctx) {
+		ctx.fillStyle = colour;
+		ctx.fillRect(b1.y*BLOCK_SIZE, b1.x*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+		ctx.fillRect(b3.y*BLOCK_SIZE, b2.x*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+		ctx.fillRect(b3.y*BLOCK_SIZE, b3.x*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+		ctx.fillRect(b4.y*BLOCK_SIZE, b4.x*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 	}
+
 }
 
 
@@ -33,7 +39,9 @@ var Shapes = [
 ];
 
 
-
+var MAXROWS = 20;
+var MAXCOLS = 10;
+var BLOCK_SIZE = 50;
 var NEWSHAPE_INTERVAL = 5;
 
 var gameloop = 0;
@@ -65,9 +73,9 @@ $(document).ready(function(e) {
 
 function initBoard() {
 	
-	for (var i=0; i<20; i++) {
+	for (var i=0; i<MAXROWS; i++) {
 		board[i] = [];
-		for (var j=0; j<10; j++)
+		for (var j=0; j<MAXCOLS; j++)
 			board[i][j] = 0;
 	}
 
@@ -120,9 +128,9 @@ function moveShape(shp, dir) {
 	// move points of current shape
 	for (var blk in shp) {
 		if (shp[blk] instanceof Block) {
-			if (dir == DOWN) shp[blk].x += 1;
-			if (dir == LEFT) shp[blk].y -= 1;
-			if (dir == RIGHT) shp[blk].y += 1;
+			if (dir == DOWN) if (shp[blk].x < MAXROWS) shp[blk].x += 1;
+			if (dir == LEFT) if (shp[blk].y > 0) shp[blk].y -= 1;
+			if (dir == RIGHT) if (shp[blk].y < MAXCOLS) shp[blk].y += 1;
 		}
 	}
 
