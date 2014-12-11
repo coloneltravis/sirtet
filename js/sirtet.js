@@ -3,11 +3,11 @@ var board = [];
 var MAXROWS = 20;
 var MAXCOLS = 10;
 var BLOCK_SIZE = 20;
-var NEWSHAPE_INTERVAL = 5;
+var NEWSHAPE_INTERVAL = 10;
 
 var currentShape, nextShape;
 var currPos = new Block(2, 3, 0);
-var firstRun = 1, dropped = 0, gameloop = 0;
+var firstRun = 1, dropped = 0, dropping = 0, gameloop = 0;
 
 var DOWN = 1;
 var LEFT = 2;
@@ -108,7 +108,7 @@ $(document).ready(function(e) {
 
 	drawBoard(ctx[0]);
 
-	setInterval(onTimer, 500);
+	setInterval(onTimer, 100);
 });
 
 
@@ -195,7 +195,10 @@ function moveShape(shp, dir) {
 	else {
 		for (var blk in shp) {
 			if (shp[blk] instanceof Block) {
-				if (dir == DOWN) if (shp[blk].x < MAXROWS-1) shp[blk].x += 1;
+				if (dir == DOWN)
+					if (shp[blk].x < MAXROWS-1) shp[blk].x += 1;
+					else { dropping = 0; dropped = 1; }
+
 				if (dir == LEFT) if (shp[blk].y > 0) shp[blk].y -= 1;
 				if (dir == RIGHT) if (shp[blk].y < MAXCOLS-1) shp[blk].y += 1;
 			}
@@ -239,7 +242,12 @@ function onTimer() {
 			//drawShape(currentShape);
 		}
 	}
-	
+
+
+	if (dropping) {
+		moveShape(currentShape, DOWN);
+	}
+
 	
 	gameloop++;
 
@@ -256,7 +264,7 @@ function keyPressed(key) {
 		case 80 : moveShape(currentShape, ROTATE_RIGHT);   // 'p'
 		break;
 
-		case 40 : dropShape(currentShape);
+		case 40 : dropping = 1;
 		break;
 
 		case 37 : moveShape(currentShape, LEFT);
@@ -265,7 +273,7 @@ function keyPressed(key) {
 		case 39 : moveShape(currentShape, RIGHT);
 		break;
 
-		case 32 : dropShape(currentShape);
+		case 32 : dropping = 1; //dropShape(currentShape);
 		break;								
 	}
 }
