@@ -6,7 +6,7 @@ var BLOCK_SIZE = 20;
 var NEWSHAPE_INTERVAL = 10;
 
 var currentShape, nextShape;
-var currPos = new Block(2, 3, 0);
+var currPos = new Block(3, 2, 0);
 var firstRun = 1, dropped = 0, dropping = 0, gameloop = 0;
 
 var DOWN = 1;
@@ -25,45 +25,45 @@ var ctx = new Array();
 
 
 
-function Block(x, y, rt) {
+function Block(x, y, key) {
 	this.x = x;
 	this.y = y;
-	this.rotate = rt;
+	this.key = key;
 }
 
 
 function Shape(shp, type, clr) {
-	this.b1 = new Block(shp.b1.x, shp.b1.y, shp.b1.rt);
-	this.b2 = new Block(shp.b2.x, shp.b2.y, shp.b2.rt);
-	this.b3 = new Block(shp.b3.x, shp.b3.y, shp.b3.rt);
-	this.b4 = new Block(shp.b4.x, shp.b4.y, shp.b4.rt);
+	this.b1 = new Block(shp.b1.x, shp.b1.y, shp.b1.key);
+	this.b2 = new Block(shp.b2.x, shp.b2.y, shp.b2.key);
+	this.b3 = new Block(shp.b3.x, shp.b3.y, shp.b3.key);
+	this.b4 = new Block(shp.b4.x, shp.b4.y, shp.b4.key);
 	this.colour = clr;
 	this.shapetype = type;
 	this.rotation = ROTATE_0;
 
 	this.draw = function(ctx, origin, clear) {
 		if (clear) {
-			ctx.clearRect(origin.x+this.b1.y*BLOCK_SIZE, origin.y+this.b1.x*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.clearRect(origin.x+this.b3.y*BLOCK_SIZE, origin.y+this.b2.x*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.clearRect(origin.x+this.b3.y*BLOCK_SIZE, origin.y+this.b3.x*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.clearRect(origin.x+this.b4.y*BLOCK_SIZE, origin.y+this.b4.x*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);			
+			ctx.clearRect(origin.x+this.b1.x*BLOCK_SIZE, origin.y+this.b1.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.clearRect(origin.x+this.b2.x*BLOCK_SIZE, origin.y+this.b2.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.clearRect(origin.x+this.b3.x*BLOCK_SIZE, origin.y+this.b3.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.clearRect(origin.x+this.b4.x*BLOCK_SIZE, origin.y+this.b4.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);			
 		}
 		else {
 			ctx.fillStyle = getColour(this.colour);
 			ctx.strokeStyle = '#fff';
-			ctx.fillRect(origin.x+this.b1.y*BLOCK_SIZE, origin.y+this.b1.x*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.fillRect(origin.x+this.b3.y*BLOCK_SIZE, origin.y+this.b2.x*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.fillRect(origin.x+this.b3.y*BLOCK_SIZE, origin.y+this.b3.x*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.fillRect(origin.x+this.b4.y*BLOCK_SIZE, origin.y+this.b4.x*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);			
+			ctx.fillRect(origin.x+this.b1.x*BLOCK_SIZE, origin.y+this.b1.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.fillRect(origin.x+this.b2.x*BLOCK_SIZE, origin.y+this.b2.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.fillRect(origin.x+this.b3.x*BLOCK_SIZE, origin.y+this.b3.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.fillRect(origin.x+this.b4.x*BLOCK_SIZE, origin.y+this.b4.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);			
 		}
 	}
 
 	
 	this.getOrigin = function() {
-		if (this.b1.rotate) return this.b1;
-		if (this.b2.rotate) return this.b2;
-		if (this.b3.rotate) return this.b3;
-		if (this.b4.rotate) return this.b4;
+		if (this.b1.key) return this.b1;
+		if (this.b2.key) return this.b2;
+		if (this.b3.key) return this.b3;
+		if (this.b4.key) return this.b4;
 	}
 }
 
@@ -71,13 +71,13 @@ function Shape(shp, type, clr) {
 
 
 var Shapes = [
-    {b1:{x:0,y:0,rt:1}, b2:{x:-1,y:0,rt:0}, b3:{x:-1,y:1,rt:0}, b4:{x:0,y:1,rt:0}}, // square
-    {b1:{x:-1,y:0,rt:0}, b2:{x:0,y:0,rt:1}, b3:{x:1,y:0,rt:0}, b4:{x:2,y:0,rt:0}},  // I shape
-    {b1:{x:0,y:0,rt:1}, b2:{x:-1,y:0,rt:0}, b3:{x:0,y:-1,rt:0}, b4:{x:0,y:1,rt:0}},  // T shape
-	{b1:{x:0,y:0,rt:1}, b2:{x:0,y:-1,rt:0}, b3:{x:-1,y:0,rt:0}, b4:{x:-2,y:0,rt:0}},  // J shape
-	{b1:{x:0,y:1,rt:0}, b2:{x:0,y:0,rt:1}, b3:{x:-1,y:0,rt:0}, b4:{x:-2,y:0,rt:0}},  // L shape
-	{b1:{x:0,y:1,rt:0}, b2:{x:0,y:0,rt:1}, b3:{x:-1,y:0,rt:0}, b4:{x:1,y:0,rt:0}},   // N shape
-	{b1:{x:0,y:0,rt:1}, b2:{x:0,y:-1,rt:0}, b3:{x:-1,y:-1,rt:0}, b4:{x:1,y:0,rt:0}}   // Z shape
+    {b1:{x:0,y:0,key:1}, b2:{x:-1,y:0,key:0}, b3:{x:-1,y:1,key:0}, b4:{x:0,y:1,key:0}}, // square
+    {b1:{x:-1,y:0,key:0}, b2:{x:0,y:0,key:1}, b3:{x:1,y:0,key:0}, b4:{x:2,y:0,key:0}},  // I shape
+    {b1:{x:0,y:0,key:1}, b2:{x:-1,y:0,key:0}, b3:{x:0,y:-1,key:0}, b4:{x:0,y:1,key:0}},  // T shape
+	{b1:{x:0,y:0,key:1}, b2:{x:0,y:-1,key:0}, b3:{x:-1,y:0,key:0}, b4:{x:-2,y:0,key:0}},  // J shape
+	{b1:{x:0,y:1,key:0}, b2:{x:0,y:0,key:1}, b3:{x:-1,y:0,key:0}, b4:{x:-2,y:0,key:0}},  // L shape
+	{b1:{x:0,y:1,key:0}, b2:{x:0,y:0,key:1}, b3:{x:-1,y:0,key:0}, b4:{x:1,y:0,key:0}},   // N shape
+	{b1:{x:0,y:0,key:1}, b2:{x:0,y:-1,key:0}, b3:{x:-1,y:-1,key:0}, b4:{x:1,y:0,key:0}}   // Z shape
 ];
 
 
@@ -114,10 +114,10 @@ $(document).ready(function(e) {
 
 function initBoard() {
 	
-	for (var i=0; i<MAXROWS; i++) {
-		board[i] = [];
-		for (var j=0; j<MAXCOLS; j++)
-			board[i][j] = 0;
+	for (var  y=0; y<MAXROWS; y++) {
+		board[y] = [];
+		for (var x=0; x<MAXCOLS; x++)
+			board[y][x] = 0;
 	}
 }
 
@@ -160,7 +160,7 @@ function drawShape(shp) {
 		if (shp[blk] instanceof Block) {
   		  //console.log(blk + ':' + shp[blk].x + ',' + shp[blk].y);
   		  //console.log('colour: ' + shp.colour);
-		  board[shp[blk].x][shp[blk].y] = shp.colour;
+		  board[shp[blk].y][shp[blk].x] = shp.colour;
 		}
 	}
 
@@ -174,7 +174,7 @@ function moveShape(shp, dir) {
 	// remove current shape from board
 	for (var blk in shp) {
 		if (shp[blk] instanceof Block) {
-			board[shp[blk].x][shp[blk].y] = 0;
+			board[shp[blk].y][shp[blk].x] = 0;
 		}
 	}
 	shp.draw(ctx[1], origin, 1);
@@ -196,11 +196,11 @@ function moveShape(shp, dir) {
 		for (var blk in shp) {
 			if (shp[blk] instanceof Block) {
 				if (dir == DOWN)
-					if (shp[blk].x < MAXROWS-1) shp[blk].x += 1;
+					if (shp[blk].y < MAXROWS-1) shp[blk].y += 1;
 					else { dropping = 0; dropped = 1; }
 
-				if (dir == LEFT) if (shp[blk].y > 0) shp[blk].y -= 1;
-				if (dir == RIGHT) if (shp[blk].y < MAXCOLS-1) shp[blk].y += 1;
+				if (dir == LEFT) if (shp[blk].x > 0) shp[blk].x -= 1;
+				if (dir == RIGHT) if (shp[blk].x < MAXCOLS-1) shp[blk].x += 1;
 			}
 		}
 	}
@@ -231,7 +231,6 @@ function onTimer() {
 	if ((gameloop % NEWSHAPE_INTERVAL) == 0) {
 		
 		if (firstRun || dropped) {
-			currPos.x = 2;
 			currentShape = getNewShape();
 			addShape(currentShape);
 			firstRun = 0;
@@ -282,8 +281,8 @@ function keyPressed(key) {
 function dropShape(shp) {
 	var keyblock = shp.getOrigin();
 	
-	while (keyblock.x < MAXROWS-1) {
-		console.log(keyblock.x);
+	while (keyblock.y < MAXROWS-1) {
+		//console.log(keyblock.x);
 		moveShape(shp, DOWN);
 		keyblock = shp.getOrigin();
 	}
@@ -294,17 +293,21 @@ function dropShape(shp) {
 
 function rotateShape(shp, dir) {
 
+	console.log('Rotating shape: ', dir);
+
 	var keyBlock = shp.getOrigin();
 	var tempShape = Shapes[shp.shapetype];
 
 	// move points of current shape
 	for (var blk in shp) {
 		if (shp[blk] instanceof Block) {
-			if (shp[blk].rotate == 0) {
+			if (shp[blk].key == 0) {
 				switch (shp.rotation) {
 					case ROTATE_0 :
+						console.log('Before rotate: ' + shp[blk]);
 						shp[blk].x  = keyBlock.x + tempShape[blk].x;
 						shp[blk].y = keyBlock.y + tempShape[blk].y;
+						console.log('After rotate: ' + shp[blk]);
 					break;
 
 					case ROTATE_90 :
@@ -318,8 +321,10 @@ function rotateShape(shp, dir) {
 					break;
 
 					case ROTATE_180 :
+						console.log('Before rotate: ' + shp[blk]);
 						shp[blk].x  = keyBlock.x - tempShape[blk].x;
 						shp[blk].y = keyBlock.y - tempShape[blk].y;
+						console.log('After rotate: ' + shp[blk]);
 					break;
 				}	
 			}
@@ -332,11 +337,10 @@ function debug() {
 	$('#debug').empty();
 
 	var str = 'board:<br/>';
-	for (var i = 0; i < board.length; i++) {
-
+	for (var y=0; y<board.length; y++) {
 		var line = '';
-		for (var j = 0; j < board[i].length; j++) 
-			line += parseInt(board[i][j]) + ',';
+		for (var x=0; x<board[y].length; x++) 
+			line += parseInt(board[y][x]) + ',';
 
 		str += line + '<br/>';
 	}
