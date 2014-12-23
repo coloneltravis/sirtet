@@ -58,12 +58,43 @@ function Shape(shp, type, clr) {
 		}
 	}
 
-	
 	this.getOrigin = function() {
 		if (this.b1.key) return this.b1;
 		if (this.b2.key) return this.b2;
 		if (this.b3.key) return this.b3;
 		if (this.b4.key) return this.b4;
+	}
+
+	this.getMaxX = function() {
+		var blk = this.b1;
+		if (this.b2.x > blk.x) blk = this.b2;
+		if (this.b3.x > blk.x) blk = this.b3;
+		if (this.b4.x > blk.x) blk = this.b4;
+		return blk;
+	}
+	
+	this.getMaxY = function() {
+		var blk = this.b1;
+		if (this.b2.y > blk.y) blk = this.b2;
+		if (this.b3.y > blk.y) blk = this.b3;
+		if (this.b4.y > blk.y) blk = this.b4;
+		return blk;
+	}
+
+	this.getMinX = function() {
+		var blk = this.b1;
+		if (this.b2.x < blk.x) blk = this.b2;
+		if (this.b3.x < blk.x) blk = this.b3;
+		if (this.b4.x < blk.x) blk = this.b4;
+		return blk;
+	}
+
+	this.getMinY = function() {
+		var blk = this.b1;
+		if (this.b2.y < blk.y) blk = this.b2;
+		if (this.b3.y < blk.y) blk = this.b3;
+		if (this.b4.y < blk.y) blk = this.b4;
+		return blk;
 	}
 }
 
@@ -193,19 +224,30 @@ function moveShape(shp, dir) {
 		rotateShape(shp, dir);
 	}
 	else {
-		for (var blk in shp) {
-			if (shp[blk] instanceof Block) {
-				if (dir == DOWN)
-					if (shp[blk].y < MAXROWS-1) shp[blk].y += 1;
-					else { dropping = 0; dropped = 1; }
-
-				if (dir == LEFT) if (shp[blk].x > 0) shp[blk].x -= 1;
-				if (dir == RIGHT) if (shp[blk].x < MAXCOLS-1) shp[blk].x += 1;
+		if (shp.getMaxY().y >= MAXROWS-1 && dir == DOWN) {
+			dropped = 1; dropping = 0;
+		}
+		else if (lineBlocked(shp.getMaxY()) && dir == DOWN) {
+			dropped = 1; dropping = 0;
+		}
+		else {
+			for (var blk in shp) {
+				if (shp[blk] instanceof Block) {
+					if (dir == DOWN) if (shp.getMaxY().y < MAXROWS-1) shp[blk].y += 1;
+					if (dir == LEFT) if (shp.getMinX().x > 0) shp[blk].x -= 1;
+					if (dir == RIGHT) if (shp.getMaxX().x < MAXCOLS-1) shp[blk].x += 1;
+				}
 			}
 		}
 	}
 
 	drawShape(shp);
+}
+
+
+function lineBlocked(blk) {
+	if (board[blk.y+1][blk.x] != 0) return 1;
+	return 0;
 }
 
 
@@ -293,8 +335,6 @@ function dropShape(shp) {
 
 function rotateShape(shp, dir) {
 
-	console.log('Rotating shape: ', dir);
-
 	var keyBlock = shp.getOrigin();
 	var tempShape = Shapes[shp.shapetype];
 
@@ -304,10 +344,8 @@ function rotateShape(shp, dir) {
 			if (shp[blk].key == 0) {
 				switch (shp.rotation) {
 					case ROTATE_0 :
-						console.log('Before rotate: ' + shp[blk]);
 						shp[blk].x  = keyBlock.x + tempShape[blk].x;
 						shp[blk].y = keyBlock.y + tempShape[blk].y;
-						console.log('After rotate: ' + shp[blk]);
 					break;
 
 					case ROTATE_90 :
@@ -321,10 +359,8 @@ function rotateShape(shp, dir) {
 					break;
 
 					case ROTATE_180 :
-						console.log('Before rotate: ' + shp[blk]);
 						shp[blk].x  = keyBlock.x - tempShape[blk].x;
 						shp[blk].y = keyBlock.y - tempShape[blk].y;
-						console.log('After rotate: ' + shp[blk]);
 					break;
 				}	
 			}
