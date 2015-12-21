@@ -22,7 +22,7 @@ var ROTATE_180 = 3;
 var ROTATE_270 = 4;
 
 var ctx = new Array();
-
+var backpanel, gamepanel;
 
 
 function Block(x, y, key) {
@@ -46,7 +46,7 @@ function Shape(shp, type, clr) {
 			ctx.clearRect(origin.x+this.b1.x*BLOCK_SIZE, origin.y+this.b1.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 			ctx.clearRect(origin.x+this.b2.x*BLOCK_SIZE, origin.y+this.b2.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 			ctx.clearRect(origin.x+this.b3.x*BLOCK_SIZE, origin.y+this.b3.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.clearRect(origin.x+this.b4.x*BLOCK_SIZE, origin.y+this.b4.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);			
+			ctx.clearRect(origin.x+this.b4.x*BLOCK_SIZE, origin.y+this.b4.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 		}
 		else {
 			ctx.fillStyle = getColour(this.colour);
@@ -54,7 +54,7 @@ function Shape(shp, type, clr) {
 			ctx.fillRect(origin.x+this.b1.x*BLOCK_SIZE, origin.y+this.b1.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 			ctx.fillRect(origin.x+this.b2.x*BLOCK_SIZE, origin.y+this.b2.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 			ctx.fillRect(origin.x+this.b3.x*BLOCK_SIZE, origin.y+this.b3.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.fillRect(origin.x+this.b4.x*BLOCK_SIZE, origin.y+this.b4.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);			
+			ctx.fillRect(origin.x+this.b4.x*BLOCK_SIZE, origin.y+this.b4.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 		}
 	}
 
@@ -72,7 +72,7 @@ function Shape(shp, type, clr) {
 		if (this.b4.x > blk.x) blk = this.b4;
 		return blk;
 	}
-	
+
 	this.getMaxY = function() {
 		var blk = this.b1;
 		if (this.b2.y > blk.y) blk = this.b2;
@@ -112,25 +112,30 @@ var Shapes = [
 ];
 
 
+window.addEventListener('load', function(e) { onready() });
 
 
-$(document).ready(function(e) {
-	$(document).keydown(function(e) {keyPressed(e.keyCode); });
+function onready() {
 
-	ctx[0] = $('#backpanel')[0].getContext('2d');
-	ctx[1] = $('#gamepanel')[0].getContext('2d');
+	document.addEventListener('keydown', function(e) {keyPressed(e.keyCode); });
+
+	backpanel = document.getElementById('backpanel');
+	gamepanel = document.getElementById('gamepanel');
+
+	ctx[0] = backpanel.getContext('2d');
+	ctx[1] = gamepanel.getContext('2d');
 
 	var layoutWidth = BLOCK_SIZE*50;
 	var layoutHeight = BLOCK_SIZE*40;
 
-	$('#backpanel')[0].width = layoutWidth;
-	$('#backpanel')[0].height = layoutHeight;
-	$('#gamepanel')[0].width = layoutWidth;
-	$('#gamepanel')[0].height = layoutHeight;
+	backpanel.width = layoutWidth;
+	backpanel.height = layoutHeight;
+	gamepanel.width = layoutWidth;
+	gamepanel.height = layoutHeight;
 
 
-	console.log('width: ' + $('#gamepanel')[0].width);
-	console.log('height: ' + $('#gamepanel')[0].height);
+	console.log('width: ' + gamepanel.width);
+	console.log('height: ' + gamepanel.height);
 
 	initBoard();
 	debug();
@@ -140,11 +145,11 @@ $(document).ready(function(e) {
 	drawBoard(ctx[0]);
 
 	setInterval(onTimer, 100);
-});
+}
 
 
 function initBoard() {
-	
+
 	for (var  y=0; y<MAXROWS; y++) {
 		board[y] = [];
 		for (var x=0; x<MAXCOLS; x++)
@@ -154,7 +159,7 @@ function initBoard() {
 
 
 function getNewShape(){
-	// get random number between 0 and 6 to use as index to leaks array		
+	// get random number between 0 and 6 to use as index to leaks array
 	var shapetype = Math.floor(Math.random()*7);
 	return new Shape(Shapes[shapetype], shapetype, Math.floor(Math.random()*5)+1);
 }
@@ -168,7 +173,7 @@ function addShape(shp) {
 		  shp[blk].y += currPos.y;
 		}
 	}
-	
+
 	drawShape(shp);
 }
 
@@ -252,7 +257,7 @@ function lineBlocked(blk) {
 
 
 function getColour(clr) {
-	
+
 	switch (clr) {
 		case 0 : return '#000';
 		case 1 : return '#f00';
@@ -271,7 +276,7 @@ function getColour(clr) {
 function onTimer() {
 
 	if ((gameloop % NEWSHAPE_INTERVAL) == 0) {
-		
+
 		if (firstRun || dropped) {
 			currentShape = getNewShape();
 			addShape(currentShape);
@@ -289,7 +294,7 @@ function onTimer() {
 		moveShape(currentShape, DOWN);
 	}
 
-	
+
 	gameloop++;
 
 	debug();
@@ -297,7 +302,7 @@ function onTimer() {
 
 
 function keyPressed(key) {
-	
+
 	switch (key) {
 		case 79 : moveShape(currentShape, ROTATE_LEFT);   // 'o'
 		break;
@@ -310,19 +315,19 @@ function keyPressed(key) {
 
 		case 37 : moveShape(currentShape, LEFT);
 		break;
-		
+
 		case 39 : moveShape(currentShape, RIGHT);
 		break;
 
 		case 32 : dropping = 1; //dropShape(currentShape);
-		break;								
+		break;
 	}
 }
 
 
 function dropShape(shp) {
 	var keyblock = shp.getOrigin();
-	
+
 	while (keyblock.y < MAXROWS-1) {
 		//console.log(keyblock.x);
 		moveShape(shp, DOWN);
@@ -352,7 +357,7 @@ function rotateShape(shp, dir) {
 						shp[blk].x  = keyBlock.x - tempShape[blk].y;
 						shp[blk].y = keyBlock.y + tempShape[blk].x;
 					break;
-				
+
 					case ROTATE_270 :
 						shp[blk].x  = keyBlock.x + tempShape[blk].y;
 						shp[blk].y = keyBlock.y - tempShape[blk].x;
@@ -362,7 +367,7 @@ function rotateShape(shp, dir) {
 						shp[blk].x  = keyBlock.x - tempShape[blk].x;
 						shp[blk].y = keyBlock.y - tempShape[blk].y;
 					break;
-				}	
+				}
 			}
 		}
 	}
@@ -370,16 +375,17 @@ function rotateShape(shp, dir) {
 
 
 function debug() {
-	$('#debug').empty();
+	var debug = document.getElementById('debug');
+	debug.innerHTML = '';
 
 	var str = 'board:<br/>';
 	for (var y=0; y<board.length; y++) {
 		var line = '';
-		for (var x=0; x<board[y].length; x++) 
+		for (var x=0; x<board[y].length; x++)
 			line += parseInt(board[y][x]) + ',';
 
 		str += line + '<br/>';
 	}
 
-	$('#debug').append(str + '<br/>');
+	debug.innerHTML = str + '<br/>';
 }
