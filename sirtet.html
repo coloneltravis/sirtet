@@ -5,9 +5,19 @@
 		<link rel="stylesheet" href="css/sirtet.css" type="text/css" />
 	</head>
 	<body>
-	<div id="panel" class="panels">
-		<canvas id="backpanel"></canvas>
-		<canvas id="gamepanel"></canvas>
-	</div>
-	<div id="debug"></div>
+		<div id="panel" class="panels">
+			<div id="gamearea" tabindex="1">
+				<canvas id="backpanel"></canvas>
+				<canvas id="gamepanel"></canvas>
+			</div>
+			<div id="infoarea" tabindex="2">
+				<div id="nextshape-display"></div>
+				<div id="linecount-display"></div>
+				<div id="score-display"></div>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+
+		<div id="debug"></div>
+	</body>
 </html>

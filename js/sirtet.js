@@ -55,6 +55,7 @@ function Shape(shp, type, clr) {
 			ctx.fillRect(origin.x+this.b2.x*BLOCK_SIZE, origin.y+this.b2.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 			ctx.fillRect(origin.x+this.b3.x*BLOCK_SIZE, origin.y+this.b3.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 			ctx.fillRect(origin.x+this.b4.x*BLOCK_SIZE, origin.y+this.b4.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+
 		}
 	}
 
@@ -96,6 +97,27 @@ function Shape(shp, type, clr) {
 		if (this.b4.y < blk.y) blk = this.b4;
 		return blk;
 	}
+
+	this.moveLeft = function() {
+		this.b1.x--;
+		this.b2.x--;
+		this.b3.x--;
+		this.b4.x--;
+	}
+
+	this.moveRight = function() {
+		this.b1.x++;
+		this.b2.x++;
+		this.b3.x++;
+		this.b4.x++;
+	}
+
+	this.moveDown = function() {
+		this.b1.y++;
+		this.b2.y++;
+		this.b3.y++;
+		this.b4.y++;
+	}
 }
 
 
@@ -112,12 +134,17 @@ var Shapes = [
 ];
 
 
+window.addEventListener('scroll', function(e) {
+  e.preventDefault();
+});
+
 window.addEventListener('load', function(e) { onready() });
 
 
-function onready() {
+var backpanel, gamepanel;
 
-	document.addEventListener('keydown', function(e) {keyPressed(e.keyCode); });
+
+function onready() {
 
 	backpanel = document.getElementById('backpanel');
 	gamepanel = document.getElementById('gamepanel');
@@ -125,17 +152,19 @@ function onready() {
 	ctx[0] = backpanel.getContext('2d');
 	ctx[1] = gamepanel.getContext('2d');
 
-	var layoutWidth = BLOCK_SIZE*50;
-	var layoutHeight = BLOCK_SIZE*40;
+	var gamearea = document.getElementById('gamearea');
+	gamearea.addEventListener('keydown', function(e) {keyPressed(e); });
 
-	backpanel.width = layoutWidth;
-	backpanel.height = layoutHeight;
-	gamepanel.width = layoutWidth;
-	gamepanel.height = layoutHeight;
+	var layoutWidth = BLOCK_SIZE*MAXCOLS;
+	var layoutHeight = BLOCK_SIZE*MAXROWS;
 
+	backpanel.width = layoutWidth*2;
+	backpanel.height = layoutHeight*2;
+	gamepanel.width = layoutWidth*2;
+	gamepanel.height = layoutHeight*2;
 
-	console.log('width: ' + gamepanel.width);
-	console.log('height: ' + gamepanel.height);
+	//console.log('width: ' + gamepanel.width);
+	//console.log('height: ' + gamepanel.height);
 
 	initBoard();
 	debug();
@@ -143,6 +172,8 @@ function onready() {
 	gameloop = 0;
 
 	drawBoard(ctx[0]);
+
+	gamearea.focus();
 
 	setInterval(onTimer, 100);
 }
@@ -180,17 +211,15 @@ function addShape(shp) {
 
 
 function drawBoard(ctx) {
-	var origin = {x:BLOCK_SIZE*4, y:BLOCK_SIZE*2};
-
 	ctx.strokeStyle = '#000';
 	ctx.beginPath();
-	ctx.rect(origin.x, origin.y, BLOCK_SIZE*10, BLOCK_SIZE*20);
+	ctx.rect(0, 0, BLOCK_SIZE*MAXCOLS, BLOCK_SIZE*MAXROWS);
 	ctx.stroke();
 }
 
 
 function drawShape(shp) {
-	var origin = {x:BLOCK_SIZE*4, y:BLOCK_SIZE*2};
+	var origin = {x:0, y:0};
 
 	for (var blk in shp) {
 		if (shp[blk] instanceof Block) {
@@ -204,8 +233,44 @@ function drawShape(shp) {
 }
 
 
+function onLeftBorder(shp) {
+
+	if (shp.getMinX().x <= 0)
+		return true;
+
+	return false;
+}
+
+
+function onRightBorder(shp) {
+
+	if (shp.getMaxX().x >= MAXCOLS-1)
+		return true;
+
+	return false;
+}
+
+
+function onBottom(shp) {
+
+	if (shp.getMaxY().y >= MAXROWS-1)
+		return true;
+
+	return false;
+}
+
+
+function canRotate(shp) {
+
+	if (shp.getMaxX().x < MAXCOLS-1 && shp.getMinX().x > 0)
+		return true;
+
+	return false;
+}
+
+
 function moveShape(shp, dir) {
-	var origin = {x:BLOCK_SIZE*4, y:BLOCK_SIZE*2};
+	var origin = {x:0, y:0};
 
 	// remove current shape from board
 	for (var blk in shp) {
@@ -217,16 +282,21 @@ function moveShape(shp, dir) {
 
 	// move points of current shape
 	if (dir == ROTATE_LEFT) {
-		if (shp.rotation == ROTATE_0) shp.rotation = ROTATE_270;
-		else shp.rotation--;
+		if (canRotate(shp)) {
+			if (shp.rotation == ROTATE_0) shp.rotation = ROTATE_270;
+			else shp.rotation--;
 
-		rotateShape(shp, dir);
+			rotateShape(shp, dir);
+		}
 	}
 	else if (dir == ROTATE_RIGHT) {
-		if (shp.rotation == ROTATE_270) shp.rotation = ROTATE_0;
-		else shp.rotation++;
 
-		rotateShape(shp, dir);
+		if (canRotate(shp)) {
+			if (shp.rotation == ROTATE_270) shp.rotation = ROTATE_0;
+			else shp.rotation++;
+
+			rotateShape(shp, dir);
+		}
 	}
 	else {
 		if (shp.getMaxY().y >= MAXROWS-1 && dir == DOWN) {
@@ -235,14 +305,14 @@ function moveShape(shp, dir) {
 		else if (lineBlocked(shp.getMaxY()) && dir == DOWN) {
 			dropped = 1; dropping = 0;
 		}
-		else {
-			for (var blk in shp) {
-				if (shp[blk] instanceof Block) {
-					if (dir == DOWN) if (shp.getMaxY().y < MAXROWS-1) shp[blk].y += 1;
-					if (dir == LEFT) if (shp.getMinX().x > 0) shp[blk].x -= 1;
-					if (dir == RIGHT) if (shp.getMaxX().x < MAXCOLS-1) shp[blk].x += 1;
-				}
-			}
+		else if (dir == LEFT && !onLeftBorder(shp)) {
+			shp.moveLeft();
+		}
+		else if (dir == RIGHT && !onRightBorder(shp)) {
+			shp.moveRight();
+		}
+		else if (dir == DOWN && !onBottom(shp)) {
+			shp.moveDown();
 		}
 	}
 
@@ -301,26 +371,32 @@ function onTimer() {
 }
 
 
-function keyPressed(key) {
+function keyPressed(event) {
 
-	switch (key) {
-		case 79 : moveShape(currentShape, ROTATE_LEFT);   // 'o'
-		break;
+	event.preventDefault();
 
-		case 80 : moveShape(currentShape, ROTATE_RIGHT);   // 'p'
-		break;
+	if (event.target == document.getElementById('gamearea')) {
+		switch (event.keyCode) {
+			case 79 : moveShape(currentShape, ROTATE_LEFT);   // 'o'
+			break;
 
-		case 40 : dropping = 1;
-		break;
+			case 80 : moveShape(currentShape, ROTATE_RIGHT);   // 'p'
+			break;
 
-		case 37 : moveShape(currentShape, LEFT);
-		break;
+			case 40 : dropping = 1;
+			break;
 
-		case 39 : moveShape(currentShape, RIGHT);
-		break;
+			case 37 : moveShape(currentShape, LEFT);
+			break;
 
-		case 32 : dropping = 1; //dropShape(currentShape);
-		break;
+			case 39 : moveShape(currentShape, RIGHT);
+			break;
+
+			case 32 : dropping = 1; //dropShape(currentShape);
+			break;
+
+			default: break;
+		}
 	}
 }
 
