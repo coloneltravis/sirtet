@@ -1,16 +1,19 @@
 
 
-body {width:900px;}
+body {width:900px; margin:0; padding:0;}
 
 
-#gamearea {position:relative; width:260px; height:490px; display:block; float:left; margin:20px;padding:10px;
-            overflow:none;}
+#gamearea {position:relative; width:200px; height:400px; float:left; margin:20px;padding:10px;}
+#infoarea {position:relative; width:100px;float:left; }
 
-#infoarea {position:relative; width:260px; height:490px; }
+#backpanel {position:absolute; z-index:0;}
+#gamepanel {position:absolute; z-index:1;}
 
-#backpanel {position:absolute; z-index:0;display:block;}
-#gamepanel {position:absolute; z-index:1;display:block;}
+#nextshape-area {position:relative; width:80px; height:80px; margin:20px;}
+#nextshape-panel {position:absolute;}
 
+
+canvas:focus {outline:none;}
 
 .clearfix {clear:both; content: ""; }
 #debug {}

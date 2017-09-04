@@ -41,21 +41,21 @@ function Shape(shp, type, clr) {
 	this.shapetype = type;
 	this.rotation = ROTATE_0;
 
-	this.draw = function(ctx, origin, clear) {
+	this.draw = function(ctx, clear) {
+
 		if (clear) {
-			ctx.clearRect(origin.x+this.b1.x*BLOCK_SIZE, origin.y+this.b1.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.clearRect(origin.x+this.b2.x*BLOCK_SIZE, origin.y+this.b2.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.clearRect(origin.x+this.b3.x*BLOCK_SIZE, origin.y+this.b3.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.clearRect(origin.x+this.b4.x*BLOCK_SIZE, origin.y+this.b4.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.clearRect(this.b1.x*BLOCK_SIZE, this.b1.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.clearRect(this.b2.x*BLOCK_SIZE, this.b2.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.clearRect(this.b3.x*BLOCK_SIZE, this.b3.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.clearRect(this.b4.x*BLOCK_SIZE, this.b4.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 		}
 		else {
 			ctx.fillStyle = getColour(this.colour);
 			ctx.strokeStyle = '#fff';
-			ctx.fillRect(origin.x+this.b1.x*BLOCK_SIZE, origin.y+this.b1.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.fillRect(origin.x+this.b2.x*BLOCK_SIZE, origin.y+this.b2.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.fillRect(origin.x+this.b3.x*BLOCK_SIZE, origin.y+this.b3.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-			ctx.fillRect(origin.x+this.b4.x*BLOCK_SIZE, origin.y+this.b4.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-
+			ctx.fillRect(this.b1.x*BLOCK_SIZE, this.b1.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.fillRect(this.b2.x*BLOCK_SIZE, this.b2.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.fillRect(this.b3.x*BLOCK_SIZE, this.b3.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			ctx.fillRect(this.b4.x*BLOCK_SIZE, this.b4.y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 		}
 	}
 
@@ -67,18 +67,28 @@ function Shape(shp, type, clr) {
 	}
 
 	this.getMaxX = function() {
-		var blk = this.b1;
-		if (this.b2.x > blk.x) blk = this.b2;
-		if (this.b3.x > blk.x) blk = this.b3;
-		if (this.b4.x > blk.x) blk = this.b4;
+		var blk = null;
+		var max = 0;
+		for (i=1; i<=4; i++) {
+			if (this['b'+i].x > max) {
+				max = this['b'+i].x;
+				blk = this['b'+i];
+			}
+		}
+
 		return blk;
 	}
 
 	this.getMaxY = function() {
-		var blk = this.b1;
-		if (this.b2.y > blk.y) blk = this.b2;
-		if (this.b3.y > blk.y) blk = this.b3;
-		if (this.b4.y > blk.y) blk = this.b4;
+		var blk = null;
+		var max = 0;
+		for (i=1; i<=4; i++) {
+			if (this['b'+i].y > max) {
+				max = this['b'+i].y;
+				blk = this['b'+i];
+			}
+		}
+
 		return blk;
 	}
 
@@ -103,6 +113,8 @@ function Shape(shp, type, clr) {
 		this.b2.x--;
 		this.b3.x--;
 		this.b4.x--;
+
+		return this;
 	}
 
 	this.moveRight = function() {
@@ -110,6 +122,8 @@ function Shape(shp, type, clr) {
 		this.b2.x++;
 		this.b3.x++;
 		this.b4.x++;
+
+		return this;
 	}
 
 	this.moveDown = function() {
@@ -117,6 +131,8 @@ function Shape(shp, type, clr) {
 		this.b2.y++;
 		this.b3.y++;
 		this.b4.y++;
+
+		return this;
 	}
 }
 
@@ -134,14 +150,12 @@ var Shapes = [
 ];
 
 
-window.addEventListener('scroll', function(e) {
-  e.preventDefault();
-});
 
 window.addEventListener('load', function(e) { onready() });
 
 
 var backpanel, gamepanel;
+var previewBox;
 
 
 function onready() {
@@ -152,19 +166,26 @@ function onready() {
 	ctx[0] = backpanel.getContext('2d');
 	ctx[1] = gamepanel.getContext('2d');
 
+	previewBox = document.getElementById('nextshape-panel').getContext('2d');
+	previewBox.width = BLOCK_SIZE*4;
+	previewBox.height = BLOCK_SIZE*4;
+
 	var gamearea = document.getElementById('gamearea');
 	gamearea.addEventListener('keydown', function(e) {keyPressed(e); });
 
 	var layoutWidth = BLOCK_SIZE*MAXCOLS;
 	var layoutHeight = BLOCK_SIZE*MAXROWS;
 
-	backpanel.width = layoutWidth*2;
-	backpanel.height = layoutHeight*2;
-	gamepanel.width = layoutWidth*2;
-	gamepanel.height = layoutHeight*2;
+	backpanel.width = layoutWidth;
+	backpanel.height = layoutHeight;
+	gamepanel.width = layoutWidth;
+	gamepanel.height = layoutHeight;
 
 	//console.log('width: ' + gamepanel.width);
 	//console.log('height: ' + gamepanel.height);
+
+	nextShape = getNewShape().moveRight().moveRight().moveDown();
+	nextShape.draw(previewBox, 0);
 
 	initBoard();
 	debug();
@@ -173,7 +194,7 @@ function onready() {
 
 	drawBoard(ctx[0]);
 
-	gamearea.focus();
+	gamepanel.focus();
 
 	setInterval(onTimer, 100);
 }
@@ -219,7 +240,6 @@ function drawBoard(ctx) {
 
 
 function drawShape(shp) {
-	var origin = {x:0, y:0};
 
 	for (var blk in shp) {
 		if (shp[blk] instanceof Block) {
@@ -229,7 +249,7 @@ function drawShape(shp) {
 		}
 	}
 
-	shp.draw(ctx[1], origin, 0);
+	shp.draw(ctx[1], 0);
 }
 
 
@@ -270,7 +290,6 @@ function canRotate(shp) {
 
 
 function moveShape(shp, dir) {
-	var origin = {x:0, y:0};
 
 	// remove current shape from board
 	for (var blk in shp) {
@@ -278,7 +297,7 @@ function moveShape(shp, dir) {
 			board[shp[blk].y][shp[blk].x] = 0;
 		}
 	}
-	shp.draw(ctx[1], origin, 1);
+	shp.draw(ctx[1], 1);
 
 	// move points of current shape
 	if (dir == ROTATE_LEFT) {
@@ -302,7 +321,8 @@ function moveShape(shp, dir) {
 		if (shp.getMaxY().y >= MAXROWS-1 && dir == DOWN) {
 			dropped = 1; dropping = 0;
 		}
-		else if (lineBlocked(shp.getMaxY()) && dir == DOWN) {
+		//else if (lineBlocked(shp.getMaxY()) && dir == DOWN) {
+		else if (lineBlocked(shp) && dir == DOWN) {
 			dropped = 1; dropping = 0;
 		}
 		else if (dir == LEFT && !onLeftBorder(shp)) {
@@ -320,8 +340,9 @@ function moveShape(shp, dir) {
 }
 
 
-function lineBlocked(blk) {
-	if (board[blk.y+1][blk.x] != 0) return 1;
+function lineBlocked(shp) {
+	for (i=1; i<=4; i++)
+		if (board[shp['b'+i].y+1][shp['b'+i].x] != 0) return 1;
 	return 0;
 }
 
@@ -348,10 +369,15 @@ function onTimer() {
 	if ((gameloop % NEWSHAPE_INTERVAL) == 0) {
 
 		if (firstRun || dropped) {
-			currentShape = getNewShape();
+			currentShape = nextShape;
+			nextShape.draw(previewBox, 1);
+
+			nextShape = getNewShape().moveRight().moveRight().moveDown();
 			addShape(currentShape);
 			firstRun = 0;
 			dropped = 0;
+
+			nextShape.draw(previewBox, 0);
 		}
 		else {
 			moveShape(currentShape, DOWN);
