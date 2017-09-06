@@ -1,13 +1,22 @@
 
 
-body {width:900px; margin:0; padding:0;}
+body { width:900px; margin:0; padding:0;
+       font-family:Arial, Helvetica, sans-serif;
+       font-size:10pt;
+}
 
 
 #gamearea {position:relative; width:200px; height:400px; float:left; margin:20px;padding:10px;}
-#infoarea {position:relative; width:100px;float:left; }
+
 
 #backpanel {position:absolute; z-index:0;}
 #gamepanel {position:absolute; z-index:1;}
+
+
+
+#infoarea {position:relative; width:400px; float:left; margin:20px; padding: 10px;}
+#infoarea label {font-weight:bold; text-align:left; display:block;}
+#infoarea span {font-size:12pt;}
 
 #nextshape-area {position:relative; width:80px; height:80px; margin:20px;}
 #nextshape-panel {position:absolute;}

@@ -24,6 +24,9 @@ var ROTATE_270 = 4;
 var ctx = new Array();
 var backpanel, gamepanel;
 
+var line_count = 0;
+var score = 0;
+
 
 function Block(x, y, key) {
 	this.x = x;
@@ -93,10 +96,15 @@ function Shape(shp, type, clr) {
 	}
 
 	this.getMinX = function() {
-		var blk = this.b1;
-		if (this.b2.x < blk.x) blk = this.b2;
-		if (this.b3.x < blk.x) blk = this.b3;
-		if (this.b4.x < blk.x) blk = this.b4;
+		var blk = null;
+		var min = 99;
+		for (i=1; i<=4; i++) {
+			if (this['b'+i].x < min) {
+				min = this['b'+i].x;
+				blk = this['b'+i];
+			}
+		}
+
 		return blk;
 	}
 
@@ -195,6 +203,9 @@ function onready() {
 	drawBoard(ctx[0]);
 
 	gamepanel.focus();
+
+	line_count = 0;
+	score = 0;
 
 	setInterval(onTimer, 100);
 }
@@ -347,6 +358,69 @@ function lineBlocked(shp) {
 }
 
 
+function countCompleteLines() {
+
+	var rows = [];
+
+	for (var y=MAXROWS-1; y>0; y--) {
+
+		var completed = 1;
+
+		for (var x=0; x<MAXCOLS; x++) {
+			if (board[y][x] == 0)
+				completed = 0;
+		}
+
+		if (completed) {
+			line_count++;
+			rows.push(y);
+		}
+	}
+
+	if (rows.length > 0)
+		removeCompletedRows(rows);
+
+	return line_count;
+}
+
+
+function removeCompletedRows(rows) {
+
+	//console.log(rows);
+
+	rows.sort(function(a, b){return a - b});
+
+	for (var r=0; r<rows.length; r++) {
+
+		var rownum = rows[r];
+
+		for (var y=rownum; y>0; y--) {
+			for (var x=0; x<MAXCOLS-1; x++) {
+				board[y][x] = board[y-1][x];
+			}
+		}
+	}
+
+	refreshBoard(ctx[1]);
+}
+
+
+function refreshBoard(ctx) {
+
+	for (var y=0; y<MAXROWS; y++) {
+		for (var x=0; x<MAXCOLS; x++) {
+
+			if (board[y][x] != 0) {
+				ctx.fillStyle = this.getColour(board[y][x]);
+				ctx.strokeStyle = '#fff';
+				ctx.fillRect(x*BLOCK_SIZE, y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+			}
+			else ctx.clearRect(x*BLOCK_SIZE, y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+		}
+	}
+}
+
+
 function getColour(clr) {
 
 	switch (clr) {
@@ -369,6 +443,9 @@ function onTimer() {
 	if ((gameloop % NEWSHAPE_INTERVAL) == 0) {
 
 		if (firstRun || dropped) {
+			countCompleteLines();
+			document.getElementById("lines-completed").innerHTML = line_count;
+
 			currentShape = nextShape;
 			nextShape.draw(previewBox, 1);
 
