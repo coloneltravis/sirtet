@@ -352,8 +352,12 @@ function moveShape(shp, dir) {
 
 
 function lineBlocked(shp) {
-	for (i=1; i<=4; i++)
-		if (board[shp['b'+i].y+1][shp['b'+i].x] != 0) return 1;
+	for (i=1; i<=4; i++) {
+		if (shp['b'+i].y < MAXROWS-1) {
+			if (board[shp['b'+i].y+1][shp['b'+i].x] != 0) return 1;
+		}
+	}
+
 	return 0;
 }
 

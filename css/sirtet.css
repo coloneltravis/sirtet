@@ -6,7 +6,8 @@ body { width:900px; margin:0; padding:0;
 }
 
 
-#gamearea {position:relative; width:200px; height:400px; float:left; margin:20px;padding:10px;}
+#gamearea {position:relative; width:200px; height:400px; float:left; margin:20px 10px;
+            background-color:#000;}
 
 
 #backpanel {position:absolute; z-index:0;}
@@ -14,15 +15,27 @@ body { width:900px; margin:0; padding:0;
 
 
 
-#infoarea {position:relative; width:400px; float:left; margin:20px; padding: 10px;}
-#infoarea label {font-weight:bold; text-align:left; display:block;}
-#infoarea span {font-size:12pt;}
+#infoarea {
+    position:relative; width:270px; height:400px; float:left; margin:20px 10px; padding:10px;
+    background-color:#ccc; border-radius:9px;
+}
 
-#nextshape-area {position:relative; width:80px; height:80px; margin:20px;}
+
+#infoarea fieldset {margin:10px 10px; padding:10px;}
+#linecount-area {width:40%;}
+#score-area {width:40%;}
+
+#infoarea span {font-size:12pt; margin:4px; padding:6px;  }
+
+#nextshape-area {position:relative; width:80px; height:80px; margin-bottom:20px; padding:10px;}
 #nextshape-panel {position:absolute;}
 
+#control-area {margin-top:20px; padding:20px;}
+#control-area button {padding:10px; font-size:14pt; border-radius:9px;}
 
-canvas:focus {outline:none;}
+
+canvas:focus {outline:none; color:transparent;}
+canvas:active {outline:none; color:transparent;}
 
 .clearfix {clear:both; content: ""; }
 #debug {}

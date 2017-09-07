@@ -11,17 +11,20 @@
 				<canvas id="gamepanel"></canvas>
 			</div>
 			<div id="infoarea" tabindex="2">
-				<div id="nextshape-area">
-					<label for="next-shape-panel">Next Piece:</label>
+				<fieldset id="nextshape-area">
+					<legend>Next Piece:</legend>
 					<canvas id="nextshape-panel"></canvas>
-				</div>
-				<div id="linecount-area">
-					<label for="lines-completed">Lines Completed:</label>
+				</fieldset>
+				<fieldset id="linecount-area">
+					<legend>Lines Completed:</legend>
 					<span id="lines-completed"></span>
-				</div>
-				<div id="score-area">
-					<label for="score">Score:</label>
+				</fieldset>
+				<fieldset id="score-area">
+					<legend>Score:</legend>
 					<span id="score"></span>
+				</fieldset>
+				<div id="control-area">
+					<button id="startstop-button" value="Start Game">Start Game</button>
 				</div>
 			</div>
 			<div class="clearfix"></div>
