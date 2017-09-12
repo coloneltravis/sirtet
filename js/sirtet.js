@@ -60,9 +60,6 @@ var Sirtet = {
 
 		this.gameBoard.debugBoard();
 		this.gameBoard.drawLayout();
-
-		//var self = this;
-		//setInterval(function() {self.onTimer() }, GAMELOOP_TIMER);
 	},
 
 
