@@ -21,6 +21,10 @@ var Sirtet = {
 	currPos: null,
 	previewBox: null,
 
+	gameTimer: 0,
+	gameStarted: 0,
+
+
 	Shapes: [
 			{b1:{x:0,y:0,key:1}, b2:{x:-1,y:0,key:0}, b3:{x:-1,y:1,key:0}, b4:{x:0,y:1,key:0}}, // square
 			{b1:{x:-1,y:0,key:0}, b2:{x:0,y:0,key:1}, b3:{x:1,y:0,key:0}, b4:{x:2,y:0,key:0}},  // I shape
@@ -46,6 +50,9 @@ var Sirtet = {
 		var gamearea = document.getElementById('gamearea');
 		gamearea.addEventListener('keydown', function(e) {that.keyPressed(e); });
 
+		var startstopButton = document.getElementById('startstop-button');
+		startstopButton.addEventListener('click', function(e) {that.startstopClicked(e); });
+
 		this.nextShape = this.getNewShape().moveRight().moveRight().moveDown();
 		this.nextShape.draw(previewBox, 0);
 
@@ -54,8 +61,8 @@ var Sirtet = {
 		this.gameBoard.debugBoard();
 		this.gameBoard.drawLayout();
 
-		var self = this;
-		setInterval(function() {self.onTimer() }, GAMELOOP_TIMER);
+		//var self = this;
+		//setInterval(function() {self.onTimer() }, GAMELOOP_TIMER);
 	},
 
 
@@ -137,6 +144,25 @@ var Sirtet = {
 
 				default: break;
 			}
+		}
+	},
+
+
+	startstopClicked: function(e) {
+
+		var self = this;
+		var startstopButton = document.getElementById('startstop-button');
+
+		if (!this.gameStarted) {
+			this.gameTimer = setInterval(function() {self.onTimer() }, GAMELOOP_TIMER);
+			this.gameloop = 0;
+			this.gameStarted = 1;
+			startstopButton.innerHTML = 'Pause Game';
+		}
+		else {
+			clearInterval(this.gameTimer);
+			this.gameStarted = false;
+			startstopButton.innerHTML = 'Start Game';
 		}
 	},
 
