@@ -9,6 +9,8 @@ var Sirtet = {
 	firstRun: 1,
 	dropped: 0,
 	dropping: 0,
+	dropLevel: 0,
+
 	gameloop: 0,
 	
 	line_count: 0,
@@ -71,8 +73,12 @@ var Sirtet = {
 		if ((this.gameloop % NEWSHAPE_INTERVAL) == 0) {
 
 			if (this.firstRun || this.dropped) {
-				this.line_count += gb.countCompleteLines();
-				document.getElementById("lines-completed").innerHTML = this.line_count;
+				var lines = gb.countCompleteLines();
+
+				if (lines > 0) {
+					this.line_count += lines;
+					this.score += (lines*this.dropLevel);
+				}
 
 				this.currentShape = this.nextShape;
 				this.nextShape.draw(previewBox, 1);
@@ -81,8 +87,10 @@ var Sirtet = {
 				gb.addShape(this.currentShape);
 				this.firstRun = 0;
 				this.dropped = 0;
+				this.dropLevel = 0;
 				
 				this.nextShape.draw(previewBox, 0);
+				this.updateStats();
 			}
 			else {
 				this.moveShape(DOWN);
@@ -93,6 +101,7 @@ var Sirtet = {
 
 		if (this.dropping) {
 			this.moveShape(DOWN);
+			this.dropLevel++;
 		}
 
 
@@ -231,6 +240,12 @@ var Sirtet = {
 				}
 			}
 		}
+	},
+
+
+	updateStats: function() {
+		document.getElementById("lines-completed").innerHTML = this.line_count;
+		document.getElementById("score").innerHTML = this.score;
 	}
 
 };
