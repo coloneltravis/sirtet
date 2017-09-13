@@ -26,12 +26,7 @@ function Board() {
 
     this.init = function() {
 
-        for (var  y=0; y<MAXROWS; y++) {
-            this.board[y] = [];
-            for (var x=0; x<MAXCOLS; x++)
-                this.board[y][x] = 0;
-        }
-
+        this.initBoard();
 
 		this.backpanel = document.getElementById('backpanel');
 		this.gamepanel = document.getElementById('gamepanel');
@@ -51,8 +46,19 @@ function Board() {
     },
 
 
+    this.initBoard = function() {
+        for (var  y=0; y<MAXROWS; y++) {
+            this.board[y] = [];
+            for (var x=0; x<MAXCOLS; x++)
+                this.board[y][x] = 0;
+        }
+    }
+
+
     this.drawLayout = function() {
+        this.initBoard();
         this.drawBoard(this.ctx[0]);
+        this.refreshBoard(this.ctx[1]);
     },
 
 
@@ -74,21 +80,30 @@ function Board() {
             }
         }
 
-        this.drawShape(shp);
+        return this.drawShape(shp);
     },
 
 
     this.drawShape = function(shp) {
 
+        var boardFull = 0;
+
         for (var blk in shp) {
             if (shp[blk] instanceof Block) {
             //console.log(blk + ':' + shp[blk].x + ',' + shp[blk].y);
             //console.log('colour: ' + shp.colour);
-            this.board[shp[blk].y][shp[blk].x] = shp.colour;
+
+                if (this.board[shp[blk].y][shp[blk].x] != 0)
+                    boardFull = 1;
+                
+                this.board[shp[blk].y][shp[blk].x] = shp.colour;
+
             }
     	}
 
-	    shp.draw(this.ctx[1], 0);
+        shp.draw(this.ctx[1], 0);
+            
+        return boardFull;
     },
 
 
@@ -310,6 +325,14 @@ function Board() {
                 else ctx.clearRect(x*BLOCK_SIZE, y*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
             }
         }
+    },
+
+
+    this.displayGameOver = function() {
+        this.ctx[1].font = "30px Comic Sans MS";
+        this.ctx[1].fillStyle = "#00f";
+        this.ctx[1].textAlign = "center";
+        this.ctx[1].fillText("Game Over", this.gamepanel.width/2, this.gamepanel.height/2); 
     },
 
 

@@ -23,7 +23,7 @@ var Sirtet = {
 
 	gameTimer: 0,
 	gameStarted: 0,
-
+	gameOver: 0,
 
 	Shapes: [
 			{b1:{x:0,y:0,key:1}, b2:{x:-1,y:0,key:0}, b3:{x:-1,y:1,key:0}, b4:{x:0,y:1,key:0}}, // square
@@ -58,7 +58,7 @@ var Sirtet = {
 
 		this.gameBoard = new Board().init();
 
-		this.gameBoard.debugBoard();
+		//this.gameBoard.debugBoard();
 		this.gameBoard.drawLayout();
 	},
 
@@ -74,6 +74,10 @@ var Sirtet = {
 
 		var gb = this.gameBoard;
 
+		if (this.gameOver) {
+			this.finishGame();
+		}
+
 		if ((this.gameloop % NEWSHAPE_INTERVAL) == 0) {
 
 			if (this.firstRun || this.dropped) {
@@ -88,7 +92,8 @@ var Sirtet = {
 				this.nextShape.draw(previewBox, 1);
 
 				this.nextShape = this.getNewShape().moveRight().moveRight().moveDown();
-				gb.addShape(this.currentShape);
+				this.gameOver = gb.addShape(this.currentShape);
+
 				this.firstRun = 0;
 				this.dropped = 0;
 				this.dropLevel = 0;
@@ -111,7 +116,7 @@ var Sirtet = {
 
 		this.gameloop++;
 
-		gb.debugBoard();
+		//gb.debugBoard();
 	},
 
 
@@ -151,16 +156,29 @@ var Sirtet = {
 		var startstopButton = document.getElementById('startstop-button');
 
 		if (!this.gameStarted) {
-			this.gameTimer = setInterval(function() {self.onTimer() }, GAMELOOP_TIMER);
+			this.gameBoard.drawLayout();
 			this.gameloop = 0;
+			this.gameOver = 0;
+			this.gameTimer = setInterval(function() {self.onTimer() }, GAMELOOP_TIMER);
+			this.line_count = 0;
+			this.score = 0;
 			this.gameStarted = 1;
 			startstopButton.innerHTML = 'Pause Game';
+			this.updateStats();
 		}
 		else {
 			clearInterval(this.gameTimer);
 			this.gameStarted = false;
 			startstopButton.innerHTML = 'Start Game';
 		}
+	},
+
+
+	finishGame: function(e) {
+		clearInterval(this.gameTimer);
+		this.gameStarted = 0;
+		document.getElementById('startstop-button').innerHTML = 'Start Game';
+		this.gameBoard.displayGameOver();
 	},
 
 
